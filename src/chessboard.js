@@ -2,7 +2,7 @@
 // https://github.com/oakmac/chessboardjs/
 //
 // Copyright (c) 2017, Chris Oakman
-// Released under the MIT license
+// Released under the mit license
 // https://github.com/oakmac/chessboardjs/blob/master/LICENSE.md
 
 // start anonymous scope
@@ -15,11 +15,14 @@
   // Constants
   // ---------------------------------------------------------------------------
 
+  var NUM_FILE = 8;
+  var NUM_RANK = 8;
   var COLUMNS = 'abcdefgh'.split('')
   var DEFAULT_DRAG_THROTTLE_RATE = 20
   var ELLIPSIS = '…'
   var MINIMUM_JQUERY_VERSION = '1.8.3'
-  var RUN_ASSERTS = true
+  //var START_FEN = 'knbr/p3/4/3P/RBNK' // microchess
+  //var START_FEN = 'rnbqk/ppppp/5/5/PPPPP/KQBNR' // minichess
   var START_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'
   var START_POSITION = fenToObj(START_FEN)
 
@@ -141,15 +144,6 @@
     return str
   }
 
-  if (RUN_ASSERTS) {
-    console.assert(interpolateTemplate('abc', {a: 'x'}) === 'abc')
-    console.assert(interpolateTemplate('{a}bc', {}) === '{a}bc')
-    console.assert(interpolateTemplate('{a}bc', {p: 'q'}) === '{a}bc')
-    console.assert(interpolateTemplate('{a}bc', {a: 'x'}) === 'xbc')
-    console.assert(interpolateTemplate('{a}bc{a}bc', {a: 'x'}) === 'xbcxbc')
-    console.assert(interpolateTemplate('{a}{a}{b}', {a: 'x', b: 'y'}) === 'xxy')
-  }
-
   // ---------------------------------------------------------------------------
   // Predicates
   // ---------------------------------------------------------------------------
@@ -191,36 +185,14 @@
   }
 
   function validSquare (square) {
-    return isString(square) && square.search(/^[a-h][1-8]$/) !== -1
+    return isString(square) && square.search(/^[a-e][1-6]$/) !== -1
   }
 
-  if (RUN_ASSERTS) {
-    console.assert(validSquare('a1'))
-    console.assert(validSquare('e2'))
-    console.assert(!validSquare('D2'))
-    console.assert(!validSquare('g9'))
-    console.assert(!validSquare('a'))
-    console.assert(!validSquare(true))
-    console.assert(!validSquare(null))
-    console.assert(!validSquare({}))
-  }
 
   function validPieceCode (code) {
     return isString(code) && code.search(/^[bw][KQRNBP]$/) !== -1
   }
 
-  if (RUN_ASSERTS) {
-    console.assert(validPieceCode('bP'))
-    console.assert(validPieceCode('bK'))
-    console.assert(validPieceCode('wK'))
-    console.assert(validPieceCode('wR'))
-    console.assert(!validPieceCode('WR'))
-    console.assert(!validPieceCode('Wr'))
-    console.assert(!validPieceCode('a'))
-    console.assert(!validPieceCode(true))
-    console.assert(!validPieceCode(null))
-    console.assert(!validPieceCode({}))
-  }
 
   function validFen (fen) {
     if (!isString(fen)) return false
@@ -232,13 +204,13 @@
     // expand the empty square numbers to just 1s
     fen = expandFenEmptySquares(fen)
 
-    // FEN should be 8 sections separated by slashes
+    // FEN should be 6 sections separated by slashes
     var chunks = fen.split('/')
-    if (chunks.length !== 8) return false
+    if (chunks.length !== NUM_RANK) return false
 
     // check each section
-    for (var i = 0; i < 8; i++) {
-      if (chunks[i].length !== 8 ||
+    for (var i = 0; i < NUM_RANK; i++) {
+      if (chunks[i].length !== NUM_FILE ||
           chunks[i].search(/[^kqrnbpKQRNBP1]/) !== -1) {
         return false
       }
@@ -247,19 +219,6 @@
     return true
   }
 
-  if (RUN_ASSERTS) {
-    console.assert(validFen(START_FEN))
-    console.assert(validFen('8/8/8/8/8/8/8/8'))
-    console.assert(validFen('r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R'))
-    console.assert(validFen('3r3r/1p4pp/2nb1k2/pP3p2/8/PB2PN2/p4PPP/R4RK1 b - - 0 1'))
-    console.assert(!validFen('3r3z/1p4pp/2nb1k2/pP3p2/8/PB2PN2/p4PPP/R4RK1 b - - 0 1'))
-    console.assert(!validFen('anbqkbnr/8/8/8/8/8/PPPPPPPP/8'))
-    console.assert(!validFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/'))
-    console.assert(!validFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBN'))
-    console.assert(!validFen('888888/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR'))
-    console.assert(!validFen('888888/pppppppp/74/8/8/8/PPPPPPPP/RNBQKBNR'))
-    console.assert(!validFen({}))
-  }
 
   function validPositionObject (pos) {
     if (!$.isPlainObject(pos)) return false
@@ -273,18 +232,6 @@
     }
 
     return true
-  }
-
-  if (RUN_ASSERTS) {
-    console.assert(validPositionObject(START_POSITION))
-    console.assert(validPositionObject({}))
-    console.assert(validPositionObject({e2: 'wP'}))
-    console.assert(validPositionObject({e2: 'wP', d2: 'wP'}))
-    console.assert(!validPositionObject({e2: 'BP'}))
-    console.assert(!validPositionObject({y2: 'wP'}))
-    console.assert(!validPositionObject(null))
-    console.assert(!validPositionObject('start'))
-    console.assert(!validPositionObject(START_FEN))
   }
 
   function isTouchDevice () {
@@ -338,15 +285,16 @@
     var rows = fen.split('/')
     var position = {}
 
-    var currentRow = 8
-    for (var i = 0; i < 8; i++) {
+    var currentRow = NUM_RANK
+    for (var i = 0; i < NUM_RANK; i++) {
       var row = rows[i].split('')
       var colIdx = 0
 
       // loop through each character in the FEN section
       for (var j = 0; j < row.length; j++) {
         // number / empty squares
-        if (row[j].search(/[1-8]/) !== -1) {
+
+        if (row[j].search(new RegExp("[1-"+NUM_FILE+"]")) !== -1) {
           var numEmptySquares = parseInt(row[j], 10)
           colIdx = colIdx + numEmptySquares
         } else {
@@ -370,9 +318,9 @@
 
     var fen = ''
 
-    var currentRow = 8
-    for (var i = 0; i < 8; i++) {
-      for (var j = 0; j < 8; j++) {
+    var currentRow = NUM_RANK
+    for (var i = 0; i < NUM_RANK; i++) {
+      for (var j = 0; j < NUM_FILE; j++) {
         var square = COLUMNS[j] + currentRow
 
         // piece exists
@@ -384,7 +332,7 @@
         }
       }
 
-      if (i !== 7) {
+      if (i !== NUM_RANK-1) {
         fen = fen + '/'
       }
 
@@ -395,12 +343,6 @@
     fen = squeezeFenEmptySquares(fen)
 
     return fen
-  }
-
-  if (RUN_ASSERTS) {
-    console.assert(objToFen(START_POSITION) === START_FEN)
-    console.assert(objToFen({}) === '8/8/8/8/8/8/8/8')
-    console.assert(objToFen({a2: 'wP', 'b2': 'bP'}) === '8/8/8/8/8/8/Pp6/8')
   }
 
   function squeezeFenEmptySquares (fen) {
@@ -463,8 +405,8 @@
     var squares = []
 
     // calculate distance of all squares
-    for (var i = 0; i < 8; i++) {
-      for (var j = 0; j < 8; j++) {
+    for (var i = 0; i < NUM_RANK; i++) {
+      for (var j = 0; j < NUM_FILE; j++) {
         var s = COLUMNS[i] + (j + 1)
 
         // skip the square we're starting from
@@ -656,6 +598,20 @@
     config = expandConfigArgumentShorthand(config)
     config = expandConfig(config)
 
+    // custom board size
+    if(config.num_rank) {
+      NUM_RANK = config.num_rank;
+    }
+
+    if(config.num_file) {
+      NUM_FILE = config.num_file;
+    }
+
+    if(config.start_fen) {
+      START_FEN = config.start_fen;
+      START_POSITION = fenToObj(START_FEN)
+    }
+
     // DOM elements
     var $board = null
     var $draggedPiece = null
@@ -765,18 +721,18 @@
       // pad one pixel
       var boardWidth = containerWidth - 1
 
-      while (boardWidth % 8 !== 0 && boardWidth > 0) {
+      while (boardWidth % NUM_RANK !== 0 && boardWidth > 0) {
         boardWidth = boardWidth - 1
       }
 
-      return boardWidth / 8
+      return boardWidth / NUM_RANK
     }
 
     // create random IDs for elements
     function createElIds () {
       // squares on the board
       for (var i = 0; i < COLUMNS.length; i++) {
-        for (var j = 1; j <= 8; j++) {
+        for (var j = 1; j <= NUM_RANK; j++) {
           var square = COLUMNS[i] + j
           squareElsIds[square] = square + '-' + uuid()
         }
@@ -805,16 +761,16 @@
 
       // algebraic notation / orientation
       var alpha = deepCopy(COLUMNS)
-      var row = 8
+      var row = NUM_RANK
       if (orientation === 'black') {
         alpha.reverse()
         row = 1
       }
 
       var squareColor = 'white'
-      for (var i = 0; i < 8; i++) {
+      for (var i = 0; i < NUM_RANK; i++) {
         html += '<div class="{row}">'
-        for (var j = 0; j < 8; j++) {
+        for (var j = 0; j < NUM_FILE; j++) {
           var square = alpha[j] + row
 
           html += '<div class="{square} ' + CSS[squareColor] + ' ' +
@@ -826,7 +782,7 @@
           if (config.showNotation) {
             // alpha notation
             if ((orientation === 'white' && row === 1) ||
-                (orientation === 'black' && row === 8)) {
+                (orientation === 'black' && row === NUM_FILE)) {
               html += '<div class="{notation} {alpha}">' + alpha[j] + '</div>'
             }
 
@@ -842,7 +798,9 @@
         }
         html += '<div class="{clearfix}"></div></div>'
 
-        squareColor = (squareColor === 'white') ? 'black' : 'white'
+        if(NUM_FILE % 2 == 0) {
+          squareColor = (squareColor === 'white') ? 'black' : 'white'
+        }
 
         if (orientation === 'white') {
           row = row - 1
@@ -1556,7 +1514,7 @@
       squareSize = calculateSquareSize()
 
       // set board width
-      $board.css('width', squareSize * 8 + 'px')
+      $board.css('width', squareSize * NUM_FILE + 'px')
 
       // set drag piece size
       $draggedPiece.css({

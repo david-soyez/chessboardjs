@@ -7,14 +7,32 @@
   <link rel="stylesheet" href="chessboard.css" />
 </head>
 <body>
-  <div id="myBoard" style="width: 400px"></div>
-  <div id="myBoard2" style="width: 400px"></div>
+  <div id="board" style="width: 400px"></div>
   <script src="../node_modules/jquery/dist/jquery.min.js"></script>
   <script src="chessboard.js"></script>
   <script>
-  var board = Chessboard('#myBoard', 'start')
+  //var board = Chessboard('#myBoard', 'start')
+   //var board = Chessboard('#myBoard', 'rnbqk/ppppp/5/5/PPPPP/KQBNR')
   // var board = Chessboard('#myBoard', 'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R')
-  // var board = Chessboard('#myBoard', 'r1bqkbnr/pppp1ppp/2n5/1B2p3/4P3/5N2/PPPP1PPP/RNBQK2R')
+var onChange = function(oldPos, newPos) {
+      console.log("Position changed:");
+      console.log("Old position: " + ChessBoard.objToFen(oldPos));
+      console.log("New position: " + ChessBoard.objToFen(newPos));
+      console.log("--------------------");
+};
+
+      var cfg = {
+            num_file: 5,
+            num_rank: 6,
+            start_fen: "rnbqk/ppppp/5/5/PPPPP/KQBNR",
+            draggable: true,
+            position: 'start',
+            onChange: onChange
+      };
+      var board = ChessBoard('board', cfg);
+
+      $('#startPositionBtn').on('click', board.start);
   </script>
+      <input type="button" id="startPositionBtn" value="Start Position" />
 </body>
 </html>
